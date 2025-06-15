@@ -1,5 +1,6 @@
 import 'package:dynamic_widget/dynamic_widget.dart';
 import 'package:dynamic_widget/dynamic_widget/drop_cap_text.dart';
+import 'package:dynamic_widget/dynamic_widget/extension/color_extension.dart';
 import 'package:flutter/widgets.dart';
 
 TextAlign parseTextAlign(String? textAlignString) {
@@ -259,7 +260,7 @@ Map<String, dynamic>? exportTextStyle(TextStyle? textStyle) {
 
   return <String, dynamic>{
     "color": textStyle.color != null
-        ? textStyle.color!.toARGB32().toRadixString(16)
+        ? textStyle.color!.toHexColor()
         : null,
     "debugLabel": textStyle.debugLabel,
     "decoration": exportTextDecoration(textStyle.decoration),
@@ -1160,7 +1161,7 @@ Map<String, dynamic>? exportBorderSide(BorderSide borderSide) {
     return null;
   }
   return <String, dynamic>{
-    "color": borderSide.color.toARGB32().toRadixString(16),
+    "color": borderSide.color.toHexColor(),
     "width": borderSide.width,
     "style": borderSide.style.index,
   };

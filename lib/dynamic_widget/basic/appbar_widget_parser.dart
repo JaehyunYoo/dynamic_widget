@@ -1,4 +1,5 @@
 import 'package:dynamic_widget/dynamic_widget.dart';
+import 'package:dynamic_widget/dynamic_widget/extension/color_extension.dart';
 import 'package:dynamic_widget/dynamic_widget/utils.dart';
 import 'package:flutter/material.dart';
 
@@ -22,7 +23,7 @@ class AppBarWidgetParser extends WidgetParser {
       "centerTitle": realWidget.centerTitle,
       "backgroundColor": realWidget.backgroundColor == null
           ? null
-          : realWidget.backgroundColor!.toARGB32().toRadixString(16),
+          : realWidget.backgroundColor!.toHexColor(),
     };
   }
 

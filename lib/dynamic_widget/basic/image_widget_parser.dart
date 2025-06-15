@@ -1,46 +1,30 @@
 import 'package:dynamic_widget/dynamic_widget.dart';
+import 'package:dynamic_widget/dynamic_widget/extension/color_extension.dart';
 import 'package:dynamic_widget/dynamic_widget/utils.dart';
 import 'package:flutter/widgets.dart';
 
 class AssetImageWidgetParser extends WidgetParser {
   @override
-  Widget parse(Map<String, dynamic> map, BuildContext buildContext,
-      ClickListener? listener) {
+  Widget parse(Map<String, dynamic> map, BuildContext buildContext, ClickListener? listener) {
     String name = map['name'];
-    String? semanticLabel =
-        map.containsKey('semanticLabel') ? map['semanticLabel'] : null;
-    bool excludeFromSemantics = map.containsKey('excludeFromSemantics')
-        ? map['excludeFromSemantics']
-        : false;
+    String? semanticLabel = map.containsKey('semanticLabel') ? map['semanticLabel'] : null;
+    bool excludeFromSemantics = map.containsKey('excludeFromSemantics') ? map['excludeFromSemantics'] : false;
     double? scale = map.containsKey("scale") ? map['scale']?.toDouble() : null;
     double? width = map.containsKey('width') ? map['width']?.toDouble() : null;
-    double? height =
-        map.containsKey('height') ? map['height']?.toDouble() : null;
-    Color? color =
-        map.containsKey('color') ? parseHexColor(map['color']) : null;
-    BlendMode? colorBlendMode = map.containsKey('colorBlendMode')
-        ? parseBlendMode(map['colorBlendMode'])
-        : null;
+    double? height = map.containsKey('height') ? map['height']?.toDouble() : null;
+    Color? color = map.containsKey('color') ? parseHexColor(map['color']) : null;
+    BlendMode? colorBlendMode = map.containsKey('colorBlendMode') ? parseBlendMode(map['colorBlendMode']) : null;
     BoxFit? fit = map.containsKey('fit') ? parseBoxFit(map['fit']) : null;
-    AlignmentGeometry alignment = map.containsKey('alignment')
-        ? parseAlignmentGeometry(map['alignment'])!
-        : Alignment.center;
-    ImageRepeat repeat = map.containsKey('repeat')
-        ? parseImageRepeat(map['repeat'])!
-        : ImageRepeat.noRepeat;
-    Rect? centerSlice =
-        map.containsKey('centerSlice') ? parseRect(map['centerSlice']) : null;
-    bool matchTextDirection = map.containsKey('matchTextDirection')
-        ? map['matchTextDirection']
-        : false;
-    bool gaplessPlayback =
-        map.containsKey('gaplessPlayback') ? map['gaplessPlayback'] : false;
-    FilterQuality filterQuality = map.containsKey('filterQuality')
-        ? parseFilterQuality(map['filterQuality'])!
-        : FilterQuality.low;
+    AlignmentGeometry alignment =
+        map.containsKey('alignment') ? parseAlignmentGeometry(map['alignment'])! : Alignment.center;
+    ImageRepeat repeat = map.containsKey('repeat') ? parseImageRepeat(map['repeat'])! : ImageRepeat.noRepeat;
+    Rect? centerSlice = map.containsKey('centerSlice') ? parseRect(map['centerSlice']) : null;
+    bool matchTextDirection = map.containsKey('matchTextDirection') ? map['matchTextDirection'] : false;
+    bool gaplessPlayback = map.containsKey('gaplessPlayback') ? map['gaplessPlayback'] : false;
+    FilterQuality filterQuality =
+        map.containsKey('filterQuality') ? parseFilterQuality(map['filterQuality'])! : FilterQuality.low;
 
-    String? clickEvent =
-        map.containsKey("click_event") ? map['click_event'] : "";
+    String? clickEvent = map.containsKey("click_event") ? map['click_event'] : "";
 
     var widget = Image.asset(
       name,
@@ -92,18 +76,12 @@ class AssetImageWidgetParser extends WidgetParser {
         "excludeFromSemantics": realWidget.excludeFromSemantics,
         "width": realWidget.width,
         "height": realWidget.height,
-        "color": realWidget.color != null
-            ? realWidget.color!.toARGB32().toRadixString(16)
-            : null,
-        "colorBlendMode": realWidget.colorBlendMode != null
-            ? exportBlendMode(realWidget.colorBlendMode)
-            : null,
+        "color": realWidget.color != null ? realWidget.color!.toHexColor() : null,
+        "colorBlendMode": realWidget.colorBlendMode != null ? exportBlendMode(realWidget.colorBlendMode) : null,
         "fit": realWidget.fit != null ? exportBoxFit(realWidget.fit) : null,
         "alignment": exportAlignment(realWidget.alignment),
         "repeat": exportImageRepeat(realWidget.repeat),
-        "centerSlice": realWidget.centerSlice != null
-            ? exportRect(realWidget.centerSlice!)
-            : null,
+        "centerSlice": realWidget.centerSlice != null ? exportRect(realWidget.centerSlice!) : null,
         "matchTextDirection": realWidget.matchTextDirection,
         "gaplessPlayback": realWidget.gaplessPlayback,
         "filterQuality": exportFilterQuality(realWidget.filterQuality)
@@ -127,18 +105,12 @@ class AssetImageWidgetParser extends WidgetParser {
         "scale": exactAssetImage.scale,
         "width": realWidget.width,
         "height": realWidget.height,
-        "color": realWidget.color != null
-            ? realWidget.color!.toARGB32().toRadixString(16)
-            : null,
-        "colorBlendMode": realWidget.colorBlendMode != null
-            ? exportBlendMode(realWidget.colorBlendMode)
-            : null,
+        "color": realWidget.color != null ? realWidget.color!.toHexColor() : null,
+        "colorBlendMode": realWidget.colorBlendMode != null ? exportBlendMode(realWidget.colorBlendMode) : null,
         "fit": realWidget.fit != null ? exportBoxFit(realWidget.fit) : null,
         "alignment": exportAlignment(realWidget.alignment),
         "repeat": exportImageRepeat(realWidget.repeat),
-        "centerSlice": realWidget.centerSlice != null
-            ? exportRect(realWidget.centerSlice!)
-            : null,
+        "centerSlice": realWidget.centerSlice != null ? exportRect(realWidget.centerSlice!) : null,
         "matchTextDirection": realWidget.matchTextDirection,
         "gaplessPlayback": realWidget.gaplessPlayback,
         "filterQuality": exportFilterQuality(realWidget.filterQuality)
@@ -178,49 +150,31 @@ class AssetImageWidgetParser extends WidgetParser {
   }
 
   @override
-  bool matchWidgetForExport(Widget? widget) =>
-      _isMatchAssetImageType(widget) || _isMatchExactAssetImageType(widget);
+  bool matchWidgetForExport(Widget? widget) => _isMatchAssetImageType(widget) || _isMatchExactAssetImageType(widget);
 }
 
 class NetworkImageWidgetParser extends WidgetParser {
   @override
-  Widget parse(Map<String, dynamic> map, BuildContext buildContext,
-      ClickListener? listener) {
+  Widget parse(Map<String, dynamic> map, BuildContext buildContext, ClickListener? listener) {
     String src = map['src'];
-    String? semanticLabel =
-        map.containsKey('semanticLabel') ? map['semanticLabel'] : null;
-    bool excludeFromSemantics = map.containsKey('excludeFromSemantics')
-        ? map['excludeFromSemantics']
-        : false;
+    String? semanticLabel = map.containsKey('semanticLabel') ? map['semanticLabel'] : null;
+    bool excludeFromSemantics = map.containsKey('excludeFromSemantics') ? map['excludeFromSemantics'] : false;
     double scale = map.containsKey("scale") ? map['scale']?.toDouble() : 1.0;
     double? width = map.containsKey('width') ? map['width']?.toDouble() : null;
-    double? height =
-        map.containsKey('height') ? map['height']?.toDouble() : null;
-    Color? color =
-        map.containsKey('color') ? parseHexColor(map['color']) : null;
-    BlendMode? colorBlendMode = map.containsKey('colorBlendMode')
-        ? parseBlendMode(map['colorBlendMode'])
-        : null;
+    double? height = map.containsKey('height') ? map['height']?.toDouble() : null;
+    Color? color = map.containsKey('color') ? parseHexColor(map['color']) : null;
+    BlendMode? colorBlendMode = map.containsKey('colorBlendMode') ? parseBlendMode(map['colorBlendMode']) : null;
     BoxFit? fit = map.containsKey('fit') ? parseBoxFit(map['fit']) : null;
-    AlignmentGeometry alignment = map.containsKey('alignment')
-        ? parseAlignmentGeometry(map['alignment'])!
-        : Alignment.center;
-    ImageRepeat repeat = map.containsKey('repeat')
-        ? parseImageRepeat(map['repeat'])!
-        : ImageRepeat.noRepeat;
-    Rect? centerSlice =
-        map.containsKey('centerSlice') ? parseRect(map['centerSlice']) : null;
-    bool matchTextDirection = map.containsKey('matchTextDirection')
-        ? map['matchTextDirection']
-        : false;
-    bool gaplessPlayback =
-        map.containsKey('gaplessPlayback') ? map['gaplessPlayback'] : false;
-    FilterQuality filterQuality = map.containsKey('filterQuality')
-        ? parseFilterQuality(map['filterQuality'])!
-        : FilterQuality.low;
+    AlignmentGeometry alignment =
+        map.containsKey('alignment') ? parseAlignmentGeometry(map['alignment'])! : Alignment.center;
+    ImageRepeat repeat = map.containsKey('repeat') ? parseImageRepeat(map['repeat'])! : ImageRepeat.noRepeat;
+    Rect? centerSlice = map.containsKey('centerSlice') ? parseRect(map['centerSlice']) : null;
+    bool matchTextDirection = map.containsKey('matchTextDirection') ? map['matchTextDirection'] : false;
+    bool gaplessPlayback = map.containsKey('gaplessPlayback') ? map['gaplessPlayback'] : false;
+    FilterQuality filterQuality =
+        map.containsKey('filterQuality') ? parseFilterQuality(map['filterQuality'])! : FilterQuality.low;
 
-    String? clickEvent =
-        map.containsKey("click_event") ? map['click_event'] : "";
+    String? clickEvent = map.containsKey("click_event") ? map['click_event'] : "";
 
     var widget = Image.network(
       src,
@@ -271,18 +225,12 @@ class NetworkImageWidgetParser extends WidgetParser {
       "excludeFromSemantics": realWidget.excludeFromSemantics,
       "width": realWidget.width,
       "height": realWidget.height,
-      "color": realWidget.color != null
-          ? realWidget.color!.toARGB32().toRadixString(16)
-          : null,
-      "colorBlendMode": realWidget.colorBlendMode != null
-          ? exportBlendMode(realWidget.colorBlendMode)
-          : null,
+      "color": realWidget.color != null ? realWidget.color!.toHexColor() : null,
+      "colorBlendMode": realWidget.colorBlendMode != null ? exportBlendMode(realWidget.colorBlendMode) : null,
       "fit": realWidget.fit != null ? exportBoxFit(realWidget.fit) : null,
       "alignment": exportAlignment(realWidget.alignment),
       "repeat": exportImageRepeat(realWidget.repeat),
-      "centerSlice": realWidget.centerSlice != null
-          ? exportRect(realWidget.centerSlice!)
-          : null,
+      "centerSlice": realWidget.centerSlice != null ? exportRect(realWidget.centerSlice!) : null,
       "matchTextDirection": realWidget.matchTextDirection,
       "gaplessPlayback": realWidget.gaplessPlayback,
       "filterQuality": exportFilterQuality(realWidget.filterQuality)

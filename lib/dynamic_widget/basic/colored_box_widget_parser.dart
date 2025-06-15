@@ -1,4 +1,5 @@
 import 'package:dynamic_widget/dynamic_widget.dart';
+import 'package:dynamic_widget/dynamic_widget/extension/color_extension.dart';
 import 'package:dynamic_widget/dynamic_widget/utils.dart';
 import 'package:flutter/material.dart';
 
@@ -11,8 +12,7 @@ class ColoredBoxWidgetParser extends WidgetParser {
   ) {
     Color color = parseHexColor(map['color'])!;
 
-    final String? clickEvent =
-        map.containsKey("click_event") ? map['click_event'] : "";
+    final String? clickEvent = map.containsKey("click_event") ? map['click_event'] : "";
 
     final widget = ColoredBox(
       color: color,
@@ -42,7 +42,7 @@ class ColoredBoxWidgetParser extends WidgetParser {
     var realWidget = widget as ColoredBox;
     return <String, dynamic>{
       "type": widgetName,
-      "color": realWidget.color.toARGB32().toRadixString(16),
+      "color": realWidget.color.toHexColor(),
     };
   }
 
