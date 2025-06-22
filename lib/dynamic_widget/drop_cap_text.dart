@@ -137,7 +137,7 @@ class DropCapText extends StatelessWidget {
       text: parseInlineMarkdown! ? null : restData,
       children: parseInlineMarkdown! ? mdRest!.toTextSpanList() : null,
       style: textStyle.apply(
-        fontSizeFactor: MediaQuery.textScalerOf(context).scale(1.0),
+        fontSizeFactor: MediaQuery.of(context).textScaler.scale(1.0),
       ),
     );
 

@@ -7,11 +7,7 @@ class ContainerWidgetParser extends WidgetParser {
   @override
   Widget parse(Map<String, dynamic> map, BuildContext buildContext, ClickListener? listener) {
     AlignmentGeometry? alignment = parseAlignmentGeometry(map['alignment']);
-    Color? color = parseHexColor(map['color']);
     BoxConstraints constraints = parseBoxConstraints(map['constraints']);
-    //TODO: decoration, foregroundDecoration and transform properties to be implemented.
-    EdgeInsetsGeometry? margin = parseEdgeInsetsGeometry(map['margin']);
-    EdgeInsetsGeometry? padding = parseEdgeInsetsGeometry(map['padding']);
     Map<String, dynamic>? childMap = map['child'];
     Widget? child = childMap == null ? null : DynamicWidgetBuilder.buildFromMap(childMap, buildContext, listener);
 
@@ -19,25 +15,16 @@ class ContainerWidgetParser extends WidgetParser {
 
     var containerWidget = Container(
       alignment: alignment,
-      padding: padding,
-      color: color,
-      margin: margin,
-      width: map['width']?.toDouble(),
-      height: map['height']?.toDouble(),
+      padding: parseEdgeInsetsGeometry(map['padding']),
+      decoration: parseBoxDecoration(map['decoration']),
+      margin: parseEdgeInsetsGeometry(map['margin']),
+      width: parseDouble(map['width']),
+      height: parseDouble(map['height']),
       constraints: constraints,
       child: child,
     );
 
-    if (listener != null && clickEvent != null) {
-      return GestureDetector(
-        onTap: () {
-          listener.onClicked(clickEvent);
-        },
-        child: containerWidget,
-      );
-    } else {
-      return containerWidget;
-    }
+    return containerWidget;
   }
 
   @override
@@ -49,13 +36,17 @@ class ContainerWidgetParser extends WidgetParser {
     var padding = realWidget.padding as EdgeInsets?;
     var margin = realWidget.margin as EdgeInsets?;
     var constraints = realWidget.constraints;
+    var decoration = realWidget.decoration as BoxDecoration?;
+
     return <String, dynamic>{
       "type": widgetName,
       "alignment": realWidget.alignment != null ? exportAlignment(realWidget.alignment) : null,
       "padding": padding != null ? "${padding.left},${padding.top},${padding.right},${padding.bottom}" : null,
-      "color": realWidget.color != null ? realWidget.color!.toHexColor() : null,
+      "decoration": exportBoxDecoration(decoration),
       "margin": margin != null ? "${margin.left},${margin.top},${margin.right},${margin.bottom}" : null,
       "constraints": constraints != null ? exportConstraints(constraints) : null,
+      "width": realWidget.constraints?.maxWidth,
+      "height": realWidget.constraints?.maxHeight,
       "child": DynamicWidgetBuilder.export(realWidget.child, buildContext)
     };
   }

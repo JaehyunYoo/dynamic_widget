@@ -5,8 +5,7 @@ import 'package:flutter/widgets.dart';
 
 class TextWidgetParser implements WidgetParser {
   @override
-  Widget parse(Map<String, dynamic> map, BuildContext buildContext,
-      ClickListener? listener) {
+  Widget parse(Map<String, dynamic> map, BuildContext buildContext, ClickListener? listener) {
     String? data = map['data'];
     String? textAlignString = map['textAlign'];
     String? overflow = map['overflow'];
@@ -58,32 +57,28 @@ class TextWidgetParser implements WidgetParser {
       return <String, dynamic>{
         "type": "Text",
         "data": realWidget.data,
-        "textAlign": realWidget.textAlign != null
-            ? exportTextAlign(realWidget.textAlign)
-            : "start",
+        "textAlign": realWidget.textAlign != null ? exportTextAlign(realWidget.textAlign) : "start",
         "overflow": exportTextOverflow(realWidget.overflow),
         "maxLines": realWidget.maxLines,
         "semanticsLabel": realWidget.semanticsLabel,
         "softWrap": realWidget.softWrap,
         "textDirection": exportTextDirection(realWidget.textDirection),
         "style": exportTextStyle(realWidget.style),
-        "textScaler": realWidget.textScaler ?? TextScaler.linear(1.0),
+        "textScaler": realWidget.textScaler ?? const TextScaler.linear(1.0),
       };
     } else {
       var parser = TextSpanParser();
       return <String, dynamic>{
         "type": "Text",
         "textSpan": parser.export(realWidget.textSpan as TextSpan),
-        "textAlign": realWidget.textAlign != null
-            ? exportTextAlign(realWidget.textAlign)
-            : "start",
+        "textAlign": realWidget.textAlign != null ? exportTextAlign(realWidget.textAlign) : "start",
         "overflow": exportTextOverflow(realWidget.overflow),
         "maxLines": realWidget.maxLines,
         "semanticsLabel": realWidget.semanticsLabel,
         "softWrap": realWidget.softWrap,
         "textDirection": exportTextDirection(realWidget.textDirection),
         "style": exportTextStyle(realWidget.style),
-        "textScaler": realWidget.textScaler ?? TextScaler.linear(1.0),
+        "textScaler": realWidget.textScaler ?? const TextScaler.linear(1.0),
       };
     }
   }
@@ -105,7 +100,7 @@ class TextSpanParser {
           ..onTap = () {
             listener!.onClicked(clickEvent);
           },
-        children: []);
+        children: const []);
 
     if (map.containsKey('children')) {
       parseChildren(textSpan, map['children'], listener);
@@ -122,8 +117,7 @@ class TextSpanParser {
     };
   }
 
-  void parseChildren(
-      TextSpan textSpan, List<dynamic> childrenSpan, ClickListener? listener) {
+  void parseChildren(TextSpan textSpan, List<dynamic> childrenSpan, ClickListener? listener) {
     for (var childmap in childrenSpan) {
       textSpan.children!.add(parse(childmap, listener));
     }

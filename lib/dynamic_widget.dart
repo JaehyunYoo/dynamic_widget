@@ -1,57 +1,22 @@
+// ignore_for_file: use_key_in_widget_constructors, prefer_interpolation_to_compose_strings
+
 library dynamic_widget;
 
 import 'dart:convert';
-
-import 'package:dynamic_widget/dynamic_widget/basic/align_widget_parser.dart';
-import 'package:dynamic_widget/dynamic_widget/basic/appbar_widget_parser.dart';
-import 'package:dynamic_widget/dynamic_widget/basic/aspectratio_widget_parser.dart';
-import 'package:dynamic_widget/dynamic_widget/basic/baseline_widget_parser.dart';
-import 'package:dynamic_widget/dynamic_widget/basic/button_widget_parser.dart';
-import 'package:dynamic_widget/dynamic_widget/basic/card_widget_parser.dart';
-import 'package:dynamic_widget/dynamic_widget/basic/center_widget_parser.dart';
-import 'package:dynamic_widget/dynamic_widget/basic/colored_box_widget_parser.dart';
-import 'package:dynamic_widget/dynamic_widget/basic/container_widget_parser.dart';
-import 'package:dynamic_widget/dynamic_widget/basic/divider_widget_parser.dart';
-import 'package:dynamic_widget/dynamic_widget/basic/dropcaptext_widget_parser.dart';
-import 'package:dynamic_widget/dynamic_widget/basic/dynamic_widget_json_exportor.dart';
-import 'package:dynamic_widget/dynamic_widget/basic/expanded_widget_parser.dart';
-import 'package:dynamic_widget/dynamic_widget/basic/fittedbox_widget_parser.dart';
-import 'package:dynamic_widget/dynamic_widget/basic/flutter_svg_widget_parser.dart';
-import 'package:dynamic_widget/dynamic_widget/basic/icon_widget_parser.dart';
-import 'package:dynamic_widget/dynamic_widget/basic/image_widget_parser.dart';
-import 'package:dynamic_widget/dynamic_widget/basic/indexedstack_widget_parser.dart';
-import 'package:dynamic_widget/dynamic_widget/basic/limitedbox_widget_parser.dart';
-import 'package:dynamic_widget/dynamic_widget/basic/listtile_widget_parser.dart';
-import 'package:dynamic_widget/dynamic_widget/basic/offstage_widget_parser.dart';
-import 'package:dynamic_widget/dynamic_widget/basic/opacity_widget_parser.dart';
-import 'package:dynamic_widget/dynamic_widget/basic/padding_widget_parser.dart';
-import 'package:dynamic_widget/dynamic_widget/basic/placeholder_widget_parser.dart';
-import 'package:dynamic_widget/dynamic_widget/basic/repaint_boundary_widget_parser.dart';
-import 'package:dynamic_widget/dynamic_widget/basic/row_column_widget_parser.dart';
-import 'package:dynamic_widget/dynamic_widget/basic/safearea_widget_parser.dart';
-import 'package:dynamic_widget/dynamic_widget/basic/scaffold_widget_parser.dart';
-import 'package:dynamic_widget/dynamic_widget/basic/selectabletext_widget_parser.dart';
-import 'package:dynamic_widget/dynamic_widget/basic/sizedbox_widget_parser.dart';
-import 'package:dynamic_widget/dynamic_widget/basic/stack_positioned_widgets_parser.dart';
-import 'package:dynamic_widget/dynamic_widget/basic/text_widget_parser.dart';
-import 'package:dynamic_widget/dynamic_widget/basic/wrap_widget_parser.dart';
-import 'package:dynamic_widget/dynamic_widget/scrolling/gridview_widget_parser.dart';
-import 'package:dynamic_widget/dynamic_widget/scrolling/listview_widget_parser.dart';
-import 'package:dynamic_widget/dynamic_widget/scrolling/pageview_widget_parser.dart';
-import 'package:dynamic_widget/dynamic_widget/scrolling/single_child_scroll_view_widget_parser.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:logging/logging.dart';
 import 'package:jsf/jsf.dart';
-
-import 'dynamic_widget/basic/cliprrect_widget_parser.dart';
-import 'dynamic_widget/basic/overflowbox_widget_parser.dart';
-import 'dynamic_widget/basic/rotatedbox_widget_parser.dart';
+import 'dynamic_widget/export_package.dart';
 
 class DynamicWidgetBuilder {
   static final Logger log = Logger('DynamicWidget');
 
   static final _parsers = [
+    ClickableParser(),
+    CarouselSliderParser(),
+    GestureDetectorParser(),
+    CachedNetworkImageParser(),
     ContainerWidgetParser(),
     TextWidgetParser(),
     SelectableTextWidgetParser(),
@@ -105,8 +70,7 @@ class DynamicWidgetBuilder {
 
   // use this method for adding your custom widget parser
   static void addParser(WidgetParser parser) {
-    log.info(
-        "add custom widget parser, make sure you don't overwirte the widget type.");
+    log.info("add custom widget parser, make sure you don't overwirte the widget type.");
     _parsers.add(parser);
     _widgetNameParserMap[parser.widgetName] = parser;
   }
@@ -120,17 +84,19 @@ class DynamicWidgetBuilder {
     }
   }
 
-  static Widget? build(
-      String json, BuildContext buildContext, ClickListener listener) {
-    initDefaultParsersIfNess();
-    var map = jsonDecode(json);
-    ClickListener _listener = listener;
-    var widget = buildFromMap(map, buildContext, _listener);
-    return widget;
+  static Widget? build(String json, BuildContext buildContext, ClickListener listener, dynamic param3) {
+    try {
+      initDefaultParsersIfNess();
+      var map = jsonDecode(json);
+      ClickListener _listener = listener;
+      var widget = buildFromMap(map, buildContext, _listener);
+      return widget;
+    } catch (error) {
+      log.severe("Error parsing JSON: $error");
+    }
   }
 
-  static Widget? buildFromMap(Map<String, dynamic>? map,
-      BuildContext buildContext, ClickListener? listener) {
+  static Widget? buildFromMap(Map<String, dynamic>? map, BuildContext buildContext, ClickListener? listener) {
     initDefaultParsersIfNess();
     if (map == null) {
       return null;
@@ -150,8 +116,7 @@ class DynamicWidgetBuilder {
     return null;
   }
 
-  static List<Widget> buildWidgets(List<dynamic> values,
-      BuildContext buildContext, ClickListener? listener) {
+  static List<Widget> buildWidgets(List<dynamic> values, BuildContext buildContext, ClickListener? listener) {
     initDefaultParsersIfNess();
     List<Widget> rt = [];
     for (var value in values) {
@@ -163,20 +128,16 @@ class DynamicWidgetBuilder {
     return rt;
   }
 
-  static Map<String, dynamic>? export(
-      Widget? widget, BuildContext? buildContext) {
+  static Map<String, dynamic>? export(Widget? widget, BuildContext? buildContext) {
     initDefaultParsersIfNess();
     var parser = _findMatchedWidgetParserForExport(widget);
     if (parser != null) {
       return parser.export(widget, buildContext);
     }
-    log.warning(
-        "Can't find WidgetParser for Type ${widget.runtimeType} to export.");
     return null;
   }
 
-  static List<Map<String, dynamic>?> exportWidgets(
-      List<Widget?> widgets, BuildContext? buildContext) {
+  static List<Map<String, dynamic>?> exportWidgets(List<Widget?> widgets, BuildContext? buildContext) {
     initDefaultParsersIfNess();
     List<Map<String, dynamic>?> rt = [];
     for (var widget in widgets) {
@@ -198,8 +159,31 @@ class DynamicWidgetBuilder {
 /// extends this class to make a Flutter widget parser.
 abstract class WidgetParser {
   /// parse the json map into a flutter widget.
-  Widget parse(Map<String, dynamic> map, BuildContext buildContext,
-      ClickListener? listener);
+  ///
+  ///
+  Widget parse(Map<String, dynamic> map, BuildContext buildContext, ClickListener? listener);
+
+  /// the widget type name for example:
+  /// {"type" : "Text", "data" : "Denny"}
+  /// if you want to make a flutter Text widget, you should implement this
+  /// method return "Text", for more details, please see
+  /// @TextWidgetParser
+  String get widgetName;
+
+  /// export the runtime widget to json
+  Map<String, dynamic>? export(Widget? widget, BuildContext? buildContext);
+
+  /// match current widget
+  Type get widgetType;
+
+  bool matchWidgetForExport(Widget? widget) => widget.runtimeType == widgetType;
+}
+
+abstract class CustomWidgetParser {
+  /// parse the json map into a flutter widget.
+  ///
+  ///
+  Widget parse(Map<String, dynamic> map, BuildContext buildContext, WidgetClickListener? listener);
 
   /// the widget type name for example:
   /// {"type" : "Text", "data" : "Denny"}
@@ -218,16 +202,29 @@ abstract class WidgetParser {
 }
 
 abstract class ClickListener {
-  void onClicked(String? event);
+  Future<void> onClicked(String? event);
 }
 
 class NonResponseWidgetClickListener implements ClickListener {
   static final Logger log = Logger('NonResponseWidgetClickListener');
 
   @override
-  void onClicked(String? event) {
+  Future<void> onClicked(String? event) async {
     log.info("receiver click event: " + event!);
     print("receiver click event: " + event);
+  }
+}
+
+abstract class WidgetClickListener {
+  Future<void> onClicked(Map<String, dynamic>? event);
+}
+
+class TestWidgetClickListener implements WidgetClickListener {
+  static final Logger log = Logger('NonResponseWidgetClickListener');
+
+  @override
+  Future<void> onClicked(Map<String, dynamic>? event) async {
+    log.info("receiver click event: " + event.toString());
   }
 }
 
@@ -258,9 +255,7 @@ class DynamicWidgetState extends State<DynamicWidget> {
     return FutureBuilder<Widget?>(
       future: _buildWidget(context),
       builder: (BuildContext context, AsyncSnapshot<Widget?> snapshot) {
-        return snapshot.hasData
-            ? DynamicWidgetJsonExportor(child: snapshot.data)
-            : SizedBox();
+        return snapshot.hasData ? DynamicWidgetJsonExportor(child: snapshot.data) : SizedBox();
       },
     );
   }
@@ -270,6 +265,7 @@ class DynamicWidgetState extends State<DynamicWidget> {
       jsonCode,
       context,
       DefaultClickListener(onClick: _onClick),
+      null,
     );
   }
 
@@ -287,7 +283,7 @@ class DefaultClickListener implements ClickListener {
   DefaultClickListener({required this.onClick});
 
   @override
-  void onClicked(String? event) {
-    onClick(event);
+  Future<void> onClicked(String? event) async {
+    await onClick(event);
   }
 }

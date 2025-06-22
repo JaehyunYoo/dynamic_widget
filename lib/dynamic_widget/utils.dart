@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:dynamic_widget/dynamic_widget.dart';
 import 'package:dynamic_widget/dynamic_widget/drop_cap_text.dart';
 import 'package:dynamic_widget/dynamic_widget/extension/color_extension.dart';
@@ -216,13 +218,36 @@ String exportFontWeight(FontWeight? fontWeight) {
   return rt;
 }
 
+double? parseDouble(dynamic value) {
+  debugPrint("parseDouble: $value");
+
+  if (value is String) {
+    return double.tryParse(value);
+  } else if (value is num) {
+    return value.toDouble();
+  }
+  return null;
+}
+
+int? parseInt(dynamic value) {
+  if (value is double) {
+    return value.toInt();
+  }
+  if (value is String) {
+    return int.tryParse(value);
+  } else if (value is num) {
+    return value.toInt();
+  }
+  return null;
+}
+
 Color? parseHexColor(String? hexColorString) {
   if (hexColorString == null) {
     return null;
   }
   hexColorString = hexColorString.toUpperCase().replaceAll("#", "");
   if (hexColorString.length == 6) {
-    hexColorString = "FF" + hexColorString;
+    hexColorString = "FF$hexColorString";
   }
   int colorInt = int.parse(hexColorString, radix: 16);
   return Color(colorInt);
@@ -232,15 +257,13 @@ TextStyle? parseTextStyle(Map<String, dynamic>? map) {
   if (map == null) {
     return null;
   }
-  //TODO: more properties need to be implemented, such as decorationColor, decorationStyle, wordSpacing and so on.
   String? color = map['color'];
   String? debugLabel = map['debugLabel'];
   String? decoration = map['decoration'];
   String? fontFamily = map['fontFamily'];
-  double? fontSize = map['fontSize']?.toDouble();
+  double? fontSize = map['fontSize']?.toDouble() ?? 12.0;
   String? fontWeight = map['fontWeight'];
-  FontStyle fontStyle =
-      'italic' == map['fontStyle'] ? FontStyle.italic : FontStyle.normal;
+  FontStyle fontStyle = 'italic' == map['fontStyle'] ? FontStyle.italic : FontStyle.normal;
 
   return TextStyle(
     color: parseHexColor(color),
@@ -259,9 +282,7 @@ Map<String, dynamic>? exportTextStyle(TextStyle? textStyle) {
   }
 
   return <String, dynamic>{
-    "color": textStyle.color != null
-        ? textStyle.color!.toHexColor()
-        : null,
+    "color": textStyle.color != null ? textStyle.color!.toHexColor() : null,
     "debugLabel": textStyle.debugLabel,
     "decoration": exportTextDecoration(textStyle.decoration),
     "fontSize": textStyle.fontSize,
@@ -340,8 +361,7 @@ Alignment? parseAlignment(String? alignmentString) {
 }
 
 AlignmentGeometry? parseAlignmentGeometry(String? alignmentString) {
-  return parseAlignmentDirectional(alignmentString) ??
-      parseAlignment(alignmentString);
+  return parseAlignmentDirectional(alignmentString) ?? parseAlignment(alignmentString);
 }
 
 const double infinity = 9999999999;
@@ -412,8 +432,7 @@ BoxConstraints parseBoxConstraints(Map<String, dynamic>? map) {
 
 EdgeInsetsGeometry? parseEdgeInsetsGeometry(String? edgeInsetsGeometryString) {
   //left,top,right,bottom
-  if (edgeInsetsGeometryString == null ||
-      edgeInsetsGeometryString.trim() == '') {
+  if (edgeInsetsGeometryString == null || edgeInsetsGeometryString.trim() == '') {
     return null;
   }
   var values = edgeInsetsGeometryString.split(",");
@@ -495,18 +514,18 @@ String exportMainAxisAlignment(MainAxisAlignment mainAxisAlignment) {
   return rt;
 }
 
-MainAxisSize parseMainAxisSize(String? mainAxisSizeString) =>
-    mainAxisSizeString == 'min' ? MainAxisSize.min : MainAxisSize.max;
+MainAxisSize parseMainAxisSize(String? mainAxisSizeString) {
+  if (mainAxisSizeString == "max") {
+    return MainAxisSize.max;
+  }
+  return MainAxisSize.min;
+}
 
 TextBaseline parseTextBaseline(String? parseTextBaselineString) =>
-    'alphabetic' == parseTextBaselineString
-        ? TextBaseline.alphabetic
-        : TextBaseline.ideographic;
+    'alphabetic' == parseTextBaselineString ? TextBaseline.alphabetic : TextBaseline.ideographic;
 
 VerticalDirection parseVerticalDirection(String? verticalDirectionString) =>
-    'up' == verticalDirectionString
-        ? VerticalDirection.up
-        : VerticalDirection.down;
+    'up' == verticalDirectionString ? VerticalDirection.up : VerticalDirection.down;
 
 String? exportBlendMode(BlendMode? blendMode) {
   if (blendMode == null) {
@@ -761,8 +780,8 @@ Rect? parseRect(String? fromLTRBString) {
     return null;
   }
   var strings = fromLTRBString.split(',');
-  return Rect.fromLTRB(double.parse(strings[0]), double.parse(strings[1]),
-      double.parse(strings[2]), double.parse(strings[3]));
+  return Rect.fromLTRB(
+      double.parse(strings[0]), double.parse(strings[1]), double.parse(strings[2]), double.parse(strings[3]));
 }
 
 String exportRect(Rect rect) {
@@ -811,17 +830,9 @@ String? getLoadMoreUrl(String? url, int currentNo, int? pageSize) {
 
   url = url.trim();
   if (url.contains("?")) {
-    url = url +
-        "&startNo=" +
-        currentNo.toString() +
-        "&pageSize=" +
-        pageSize.toString();
+    url = url + "&startNo=" + currentNo.toString() + "&pageSize=" + pageSize.toString();
   } else {
-    url = url +
-        "?startNo=" +
-        currentNo.toString() +
-        "&pageSize=" +
-        pageSize.toString();
+    url = url + "?startNo=" + currentNo.toString() + "&pageSize=" + pageSize.toString();
   }
   return url;
 }
@@ -1057,21 +1068,18 @@ String exportDropCapPosition(DropCapPosition? dropCapPosition) {
   return rt;
 }
 
-DropCap? parseDropCap(Map<String, dynamic>? map, BuildContext buildContext,
-    ClickListener? listener) {
+DropCap? parseDropCap(Map<String, dynamic>? map, BuildContext buildContext, ClickListener? listener) {
   if (map == null) {
     return null;
   }
   return DropCap(
     width: map['width']?.toDouble(),
     height: map['height']?.toDouble(),
-    child:
-        DynamicWidgetBuilder.buildFromMap(map["child"], buildContext, listener),
+    child: DynamicWidgetBuilder.buildFromMap(map["child"], buildContext, listener),
   );
 }
 
-Map<String, dynamic>? exportDropCap(
-    DropCap? dropCap, BuildContext? buildContext) {
+Map<String, dynamic>? exportDropCap(DropCap? dropCap, BuildContext? buildContext) {
   if (dropCap == null) {
     return null;
   }
@@ -1145,13 +1153,9 @@ String? exportAlignment(AlignmentGeometry? alignmentGeometry) {
 Map<String, dynamic> exportConstraints(BoxConstraints constraints) {
   return {
     'minWidth': constraints.minWidth,
-    'maxWidth': constraints.maxWidth == double.infinity
-        ? infinity
-        : constraints.maxWidth,
+    'maxWidth': constraints.maxWidth == double.infinity ? infinity : constraints.maxWidth,
     'minHeight': constraints.minHeight,
-    'maxHeight': constraints.maxHeight == double.infinity
-        ? infinity
-        : constraints.maxHeight,
+    'maxHeight': constraints.maxHeight == double.infinity ? infinity : constraints.maxHeight,
   };
 }
 
@@ -1208,4 +1212,51 @@ Radius parseRadius(String radius) {
   } else {
     return Radius.zero;
   }
+}
+
+BoxDecoration? parseBoxDecoration(Map<String, dynamic>? map) {
+  if (map == null) {
+    return null;
+  }
+  return BoxDecoration(
+    color: parseHexColor(map['color']),
+    borderRadius: parseBorderRadius(map['borderRadius']),
+    border: parseBoxBorder(map['border']),
+    shape: map['shape'] == 'circle' ? BoxShape.circle : BoxShape.rectangle,
+  );
+}
+
+Map<String, dynamic>? exportBoxDecoration(BoxDecoration? decoration) {
+  if (decoration == null) {
+    return null;
+  }
+  return <String, dynamic>{
+    'color': decoration.color?.toHexColor(),
+    'borderRadius':
+        decoration.borderRadius != null ? exportBorderRadius(decoration.borderRadius as BorderRadius) : null,
+    'border': exportBoxBorder(decoration.border),
+    'shape': decoration.shape == BoxShape.circle ? 'circle' : 'rectangle',
+  };
+}
+
+BoxBorder? parseBoxBorder(Map<String, dynamic>? map) {
+  if (map == null) {
+    return null;
+  }
+  return Border.all(
+    color: parseHexColor(map['color']) ?? const Color(0xFF000000),
+    width: parseDouble(map['width']) ?? 1.0,
+  );
+}
+
+Map<String, dynamic>? exportBoxBorder(BoxBorder? border) {
+  if (border == null || border is! Border) {
+    return null;
+  }
+  final Border b = border;
+  final side = b.top;
+  return <String, dynamic>{
+    'color': side.color.toHexColor(),
+    'width': side.width,
+  };
 }
