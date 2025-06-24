@@ -55,7 +55,7 @@ class CarouselSliderParser extends WidgetParser {
 
     return <String, dynamic>{
       'type': widgetName,
-      'items': DynamicWidgetBuilder.exportWidgets(realWidget.items?.map((e) => e).toList() ?? [], buildContext),
+      'items': DynamicWidgetBuilder.exportWidgets(realWidget.items ?? [], buildContext),
       'options': <String, dynamic>{
         'height': options.height,
         'aspectRatio': options.aspectRatio,

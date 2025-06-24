@@ -219,8 +219,6 @@ String exportFontWeight(FontWeight? fontWeight) {
 }
 
 double? parseDouble(dynamic value) {
-  debugPrint("parseDouble: $value");
-
   if (value is String) {
     return double.tryParse(value);
   } else if (value is num) {
@@ -1222,6 +1220,7 @@ BoxDecoration? parseBoxDecoration(Map<String, dynamic>? map) {
     color: parseHexColor(map['color']),
     borderRadius: parseBorderRadius(map['borderRadius']),
     border: parseBoxBorder(map['border']),
+    boxShadow: map.containsKey('boxShadow') ? parseBoxShadows(map['boxShadow']) : null,
     shape: map['shape'] == 'circle' ? BoxShape.circle : BoxShape.rectangle,
   );
 }
@@ -1235,8 +1234,89 @@ Map<String, dynamic>? exportBoxDecoration(BoxDecoration? decoration) {
     'borderRadius':
         decoration.borderRadius != null ? exportBorderRadius(decoration.borderRadius as BorderRadius) : null,
     'border': exportBoxBorder(decoration.border),
-    'shape': decoration.shape == BoxShape.circle ? 'circle' : 'rectangle',
+    'boxShadow': exportBoxShadows(decoration.boxShadow),
+    // 'shape': decoration.shape == BoxShape.circle ? 'circle' : 'rectangle',
   };
+}
+
+List<Map<String, dynamic>>? exportBoxShadows(List<BoxShadow>? boxShadow) {
+  if (boxShadow == null) {
+    return null;
+  }
+  return boxShadow.map((e) => exportBoxShadow(e)).toList();
+}
+
+Map<String, dynamic> exportBoxShadow(BoxShadow boxShadow) {
+  return <String, dynamic>{
+    'color': boxShadow.color.toHexColor(),
+    'offset': exportOffset(boxShadow.offset),
+    'blurRadius': boxShadow.blurRadius,
+    'spreadRadius': boxShadow.spreadRadius,
+    'blurStyle': exportBlurStyle(boxShadow.blurStyle),
+  };
+}
+
+String exportOffset(Offset offset) {
+  return "${offset.dx},${offset.dy}";
+}
+
+String exportBlurStyle(BlurStyle blurStyle) {
+  switch (blurStyle) {
+    case BlurStyle.normal:
+      return 'normal';
+    case BlurStyle.solid:
+      return 'solid';
+    case BlurStyle.outer:
+      return 'outer';
+    case BlurStyle.inner:
+      return 'inner';
+  }
+}
+
+List<BoxShadow>? parseBoxShadows(List<dynamic>? boxShadows) {
+  if (boxShadows == null) {
+    return null;
+  }
+  return boxShadows.map((e) => parseBoxShadow(e)).toList();
+}
+
+BoxShadow parseBoxShadow(Map<String, dynamic> map) {
+  debugPrint("parseBoxShadow: ${map}");
+  return BoxShadow(
+    color: parseHexColor(map['color']) ?? const Color.fromARGB(255, 60, 58, 58),
+    offset: parseOffset(map['offset']) ?? Offset.zero,
+    blurRadius: parseDouble(map['blurRadius']) ?? 0.0,
+    spreadRadius: parseDouble(map['spreadRadius']) ?? 0.0,
+    blurStyle: parseBlurStyle(map['blurStyle']) ?? BlurStyle.normal,
+  );
+}
+
+Offset? parseOffset(String? offset) {
+  if (offset == null) {
+    return null;
+  }
+  final values = offset.split(',');
+  if (values.length == 2) {
+    return Offset(double.parse(values[0]), double.parse(values[1]));
+  }
+  return Offset.zero;
+}
+
+BlurStyle? parseBlurStyle(String? blurStyle) {
+  if (blurStyle == null) {
+    return null;
+  }
+  switch (blurStyle) {
+    case 'normal':
+      return BlurStyle.normal;
+    case 'solid':
+      return BlurStyle.solid;
+    case 'outer':
+      return BlurStyle.outer;
+    case 'inner':
+      return BlurStyle.inner;
+  }
+  return null;
 }
 
 BoxBorder? parseBoxBorder(Map<String, dynamic>? map) {

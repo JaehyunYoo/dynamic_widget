@@ -1,8 +1,9 @@
-// ignore_for_file: use_key_in_widget_constructors, prefer_interpolation_to_compose_strings
+// ignore_for_file: use_key_in_widget_constructors, prefer_interpolation_to_compose_strings, no_leading_underscores_for_local_identifiers, body_might_complete_normally_nullable
 
 library dynamic_widget;
 
 import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:logging/logging.dart';
@@ -13,6 +14,7 @@ class DynamicWidgetBuilder {
   static final Logger log = Logger('DynamicWidget');
 
   static final _parsers = [
+    OverflowBoxWidgetParser(),
     ClickableParser(),
     CarouselSliderParser(),
     GestureDetectorParser(),
@@ -75,6 +77,28 @@ class DynamicWidgetBuilder {
     _widgetNameParserMap[parser.widgetName] = parser;
   }
 
+  static void _findAndupdatePopupCount(Map<String, dynamic> data, String newText) {
+    if (data['type'] == 'Text') {
+      String? textData = data['data'];
+      if (textData != null && textData.contains('popupCount')) {
+        data['data'] = newText;
+        return;
+      }
+    }
+
+    data.forEach((key, value) {
+      if (value is Map<String, dynamic>) {
+        _findAndupdatePopupCount(value, newText);
+      } else if (value is List) {
+        for (var element in value) {
+          if (element is Map<String, dynamic>) {
+            _findAndupdatePopupCount(element, newText);
+          }
+        }
+      }
+    });
+  }
+
   static void initDefaultParsersIfNess() {
     if (!_defaultParserInited) {
       for (var parser in _parsers) {
@@ -84,12 +108,76 @@ class DynamicWidgetBuilder {
     }
   }
 
-  static Widget? build(String json, BuildContext buildContext, ClickListener listener, dynamic param3) {
+  static Widget? build(
+    String json,
+    BuildContext buildContext,
+    ClickListener listener,
+    dynamic param3, {
+    bool? isRandom = false,
+    Function(dynamic)? onLoad,
+  }) {
     try {
       initDefaultParsersIfNess();
-      var map = jsonDecode(json);
+      final map = jsonDecode(json);
+
+      if (map['items'] is List) {
+        var items = map['items'] as List<dynamic>;
+        if (isRandom == true) {
+          items.shuffle();
+        }
+        if (onLoad != null) {
+          onLoad.call(items.first["onTapEvent"]);
+        }
+      }
+
       ClickListener _listener = listener;
       var widget = buildFromMap(map, buildContext, _listener);
+
+      return widget;
+    } catch (error) {
+      log.severe("Error parsing JSON: $error");
+    }
+  }
+
+  static Widget? build2(
+    String json,
+    BuildContext buildContext,
+    ClickListener listener,
+    dynamic param3, {
+    bool? isRandom = false,
+    Function(dynamic)? onLoad,
+  }) {
+    try {
+      initDefaultParsersIfNess();
+      final map = jsonDecode(json);
+
+      if (map['items'] is List) {
+        var items = map['items'] as List<dynamic>;
+        if (isRandom == true) {
+          items.shuffle();
+          if (items.any((element) => element.toString().contains("popupCount"))) {
+            for (var i = 0; i < items.length; i++) {
+              var item = items[i];
+              if (item is Map<String, dynamic>) {
+                var itemJsonString = jsonEncode(item);
+                if (itemJsonString.contains('popupCount')) {
+                  var newText = '${i + 1}/${items.length}';
+                  var updatedItemJsonString = itemJsonString.replaceAll('popupCount', newText);
+
+                  items[i] = jsonDecode(updatedItemJsonString);
+                }
+              }
+            }
+          }
+        }
+        if (onLoad != null) {
+          onLoad.call(items.first["onTapEvent"]);
+        }
+      }
+
+      ClickListener _listener = listener;
+      var widget = buildFromMap(map, buildContext, _listener);
+
       return widget;
     } catch (error) {
       log.severe("Error parsing JSON: $error");
