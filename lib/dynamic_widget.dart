@@ -146,6 +146,7 @@ class DynamicWidgetBuilder {
     dynamic param3, {
     bool? isRandom = false,
     Function(dynamic)? onLoad,
+    bool isUserPremium = false,
   }) {
     try {
       initDefaultParsersIfNess();
@@ -153,19 +154,30 @@ class DynamicWidgetBuilder {
 
       if (map['items'] is List) {
         var items = map['items'] as List<dynamic>;
+        if (!isUserPremium) {
+          items.removeWhere((item) {
+            if (item is Map<String, dynamic> && item.containsKey('onTapEvent')) {
+              final onTapEvent = item['onTapEvent'];
+              if (onTapEvent is Map<String, dynamic> && onTapEvent.containsKey('isPremium')) {
+                return onTapEvent['isPremium'] == 'true';
+              }
+            }
+            return false;
+          });
+        }
         if (isRandom == true) {
           items.shuffle();
-        }
-        if (items.any((element) => element.toString().contains("popupCount"))) {
-          for (var i = 0; i < items.length; i++) {
-            var item = items[i];
-            if (item is Map<String, dynamic>) {
-              var itemJsonString = jsonEncode(item);
-              if (itemJsonString.contains('popupCount')) {
-                var newText = '${i + 1}/${items.length}';
-                var updatedItemJsonString = itemJsonString.replaceAll('popupCount', newText);
+          if (items.any((element) => element.toString().contains("popupCount"))) {
+            for (var i = 0; i < items.length; i++) {
+              var item = items[i];
+              if (item is Map<String, dynamic>) {
+                var itemJsonString = jsonEncode(item);
+                if (itemJsonString.contains('popupCount')) {
+                  var newText = '${i + 1}/${items.length}';
+                  var updatedItemJsonString = itemJsonString.replaceAll('popupCount', newText);
 
-                items[i] = jsonDecode(updatedItemJsonString);
+                  items[i] = jsonDecode(updatedItemJsonString);
+                }
               }
             }
           }
