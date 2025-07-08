@@ -40,7 +40,10 @@ class CarouselSliderParser extends WidgetParser {
 
     return CarouselSlider(
       items: items,
-      options: options,
+      options: options.copyWith(
+        enlargeCenterPage: items.length > 1 ? true : false,
+        autoPlay: items.length > 1 ? true : false,
+      ),
     );
   }
 
