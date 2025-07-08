@@ -139,14 +139,14 @@ class DynamicWidgetBuilder {
     }
   }
 
-  static Widget? build2(
+  static Widget? buildPremium(
     String json,
     BuildContext buildContext,
     ClickListener listener,
     dynamic param3, {
     bool? isRandom = false,
     Function(dynamic)? onLoad,
-    bool isUserPremium = false,
+    bool? isUserPremium = false,
   }) {
     try {
       initDefaultParsersIfNess();
@@ -154,7 +154,7 @@ class DynamicWidgetBuilder {
 
       if (map['items'] is List) {
         var items = map['items'] as List<dynamic>;
-        if (!isUserPremium) {
+        if (isUserPremium == true) {
           items.removeWhere((item) {
             if (item is Map<String, dynamic> && item.containsKey('onTapEvent')) {
               final onTapEvent = item['onTapEvent'];
@@ -165,6 +165,51 @@ class DynamicWidgetBuilder {
             return false;
           });
         }
+        if (isRandom == true) {
+          items.shuffle();
+          if (items.any((element) => element.toString().contains("popupCount"))) {
+            for (var i = 0; i < items.length; i++) {
+              var item = items[i];
+              if (item is Map<String, dynamic>) {
+                var itemJsonString = jsonEncode(item);
+                if (itemJsonString.contains('popupCount')) {
+                  var newText = '${i + 1}/${items.length}';
+                  var updatedItemJsonString = itemJsonString.replaceAll('popupCount', newText);
+
+                  items[i] = jsonDecode(updatedItemJsonString);
+                }
+              }
+            }
+          }
+        }
+        if (onLoad != null) {
+          onLoad.call(items.first["onTapEvent"]);
+        }
+      }
+
+      ClickListener _listener = listener;
+      var widget = buildFromMap(map, buildContext, _listener);
+
+      return widget;
+    } catch (error) {
+      log.severe("Error parsing JSON: $error");
+    }
+  }
+
+  static Widget? build2(
+    String json,
+    BuildContext buildContext,
+    ClickListener listener,
+    dynamic param3, {
+    bool? isRandom = false,
+    Function(dynamic)? onLoad,
+  }) {
+    try {
+      initDefaultParsersIfNess();
+      final map = jsonDecode(json);
+
+      if (map['items'] is List) {
+        var items = map['items'] as List<dynamic>;
         if (isRandom == true) {
           items.shuffle();
           if (items.any((element) => element.toString().contains("popupCount"))) {
