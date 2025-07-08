@@ -167,17 +167,17 @@ class DynamicWidgetBuilder {
         }
         if (isRandom == true) {
           items.shuffle();
-          if (items.any((element) => element.toString().contains("popupCount"))) {
-            for (var i = 0; i < items.length; i++) {
-              var item = items[i];
-              if (item is Map<String, dynamic>) {
-                var itemJsonString = jsonEncode(item);
-                if (itemJsonString.contains('popupCount')) {
-                  var newText = '${i + 1}/${items.length}';
-                  var updatedItemJsonString = itemJsonString.replaceAll('popupCount', newText);
+        }
+        if (items.any((element) => element.toString().contains("popupCount"))) {
+          for (var i = 0; i < items.length; i++) {
+            var item = items[i];
+            if (item is Map<String, dynamic>) {
+              var itemJsonString = jsonEncode(item);
+              if (itemJsonString.contains('popupCount')) {
+                var newText = '${i + 1}/${items.length}';
+                var updatedItemJsonString = itemJsonString.replaceAll('popupCount', newText);
 
-                  items[i] = jsonDecode(updatedItemJsonString);
-                }
+                items[i] = jsonDecode(updatedItemJsonString);
               }
             }
           }
