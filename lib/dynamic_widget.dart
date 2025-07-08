@@ -157,8 +157,8 @@ class DynamicWidgetBuilder {
         if (isUserPremium == true) {
           items.removeWhere((item) {
             if (item is Map<String, dynamic> && item.containsKey('onTapEvent')) {
-              final onTapEvent = item['onTapEvent'];
-              if (onTapEvent is Map<String, dynamic> && onTapEvent.containsKey('isPremium')) {
+              final onTapEvent = jsonDecode(item['onTapEvent']);
+              if (onTapEvent.containsKey('isPremium')) {
                 return onTapEvent['isPremium'] == 'true';
               }
             }
