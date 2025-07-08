@@ -43,6 +43,7 @@ class CarouselSliderParser extends WidgetParser {
       options: options.copyWith(
         enlargeCenterPage: items.length > 1 ? true : false,
         autoPlay: items.length > 1 ? true : false,
+        enableInfiniteScroll: items.length > 1 ? true : false,
       ),
     );
   }
